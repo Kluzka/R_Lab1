@@ -5,14 +5,17 @@ library(AMORE)
 
 #setwd("D:\\R") #Zmieniamy katalog roboczy na folder zawieraj?cy dane
 
+# import data
 Heart = read.csv("~/R/R_Lab1/SAheart.csv")
 Heart
 
+# split data
 Ilosc.Danych=nrow(Heart)
-set.seed(9)
+set.seed(8)
 idxTren<-sample(1:Ilosc.Danych,2*Ilosc.Danych/3)
 idxTest<-setdiff(1:Ilosc.Danych,idxTren) 
 
+# data to number values 
 target<-function(x)
 {
   n<-length(x)
@@ -25,13 +28,12 @@ target<-function(x)
   return(T)
 }
 
-#zastosowanie powy?szej funkcji dla danych okre?laj?cych etykiety
 wZadane<-target(Heart$chd)
 wZadane
 
 set.seed(3)
 
-#tworzymy struktur? sieci
+# create network
 siec<-newff(n.neurons=c(9,4,2),
             learning.rate.global=0.02,
             momentum.global=0.8,
@@ -40,7 +42,7 @@ siec<-newff(n.neurons=c(9,4,2),
             method="ADAPTgdwm",
             error.criterium="LMS")
 
-#trenujemy sie?
+# train netwok
 wynik<-train(siec,
              Heart[idxTren,-10],
              wZadane[idxTren,],
@@ -49,21 +51,17 @@ wynik<-train(siec,
              show.step=10,
              n.shows=1000)
 
-#wy?wietlam warto?ci b??d?w
+# show plot
 plot(wynik$Merror,
-     type="o",
+     type="l",
      xlab="Iteracja (x10)",
      ylab="Blad", 
      col="blue",
      xlim = c(0,50)
      )
 
-
-#stosuj? wytrenowan? sie? do danych testowych
 y<-sim(wynik$net,Heart[idxTest, -10])
 
-
-#definiuj? funkcj? oceny klasyfikacji (zamieniam liczby na etykiet?)
 test.klasyf<-function(zad,wy)
 {
   zadane<-max.col(zad)
@@ -72,7 +70,6 @@ test.klasyf<-function(zad,wy)
 }
 wynik<-test.klasyf(wZadane[idxTest,],y)
 
-#okre?lamy dok?adno?? klasyfikacji
 cat("Dokladnosc klasyfikacji:",
     sum(diag(wynik))/sum(wynik)*100, "%\n")
 
