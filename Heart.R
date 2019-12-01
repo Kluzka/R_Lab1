@@ -60,6 +60,7 @@ plot(wynik$Merror,
      xlim = c(0,50)
      )
 
+# run test data
 y<-sim(wynik$net,Heart[idxTest, -10])
 
 test.klasyf<-function(zad,wy)
